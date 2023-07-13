@@ -1,0 +1,4 @@
+rpi_hardware_pwm
+pyserial
+RPi.GPIO
+pigpio
