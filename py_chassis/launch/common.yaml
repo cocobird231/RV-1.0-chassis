@@ -1,0 +1,15 @@
+#config/common.yaml
+
+---
+topic_chassis:
+    nodeName : "chassis_publisher_node" #defined by ID
+    topicName : "chassis_motor_0" #defined by ID
+    publishInterval : 0.1
+
+node_prop:
+    nodeName : "" #defined by ID
+    namespace : "V0"
+
+internal_prop:
+    hostIP : "192.168.1.42" #Jim ID server location
+    ID : 13 #Determine chassis module function { axle : [11, 14], steering : [41, 44], battery : [21, 36] }
