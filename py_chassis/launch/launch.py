@@ -6,12 +6,12 @@ import os
 import yaml
 
 def generate_launch_description():
-    commonFilePath = os.path.join(get_package_share_directory('py_axle'), 'launch/common.yaml')
+    commonFilePath = os.path.join(get_package_share_directory('py_chassis'), 'launch/common.yaml')
     with open(commonFilePath, 'r') as f:
         data = yaml.load(f)
     return LaunchDescription([
         Node(
-            package="py_axle",
+            package="py_chassis",
             namespace=data['node_prop']['namespace'],
             executable="pub",
             output="screen",
