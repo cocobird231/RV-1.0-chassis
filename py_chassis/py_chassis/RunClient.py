@@ -109,7 +109,7 @@ def ModuleProcess(interval_s = 0.1):
             #distance = ord(unpacked_content[9])*256 + ord(unpacked_content[10])
             distance = unpacked_content[9]*256 + unpacked_content[10]
             print("distance = ", distance)
-            TurningModule.SetDistance(distance)
+            TurningModule().SetDistance(distance)
 
             ros2DictLock.acquire()
             # value in distance

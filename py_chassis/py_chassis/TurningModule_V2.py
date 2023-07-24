@@ -263,6 +263,7 @@ class TurningModule():
                 #print("write command1", command0)
                 time.sleep(0.0001*len(motorCommandCrc))
                 GPIO.output(uart_tx, GPIO.LOW)
+                '''
                 for i in range(20):
                     count = ser.inWaiting()
                     if count != 0:
@@ -275,7 +276,7 @@ class TurningModule():
                     ser.flushInput()
                     time.sleep(0.1)
                     i=i+1
-                
+                '''
                 
                 
             except Exception as e1:
