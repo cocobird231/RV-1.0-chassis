@@ -3,6 +3,8 @@ import serial, time
 import RPi.GPIO as GPIO
 import crcmod
 import binascii
+import pickle
+import socket
 
 #ser = serial.Serial("/dev/ttyAMA0", 115200)
 
@@ -22,6 +24,32 @@ class TurningModule():
         read = data + crc_data[4:] + crc_data[2:4]
         return read
 
+    def SendData(self, distance): 
+        # 建立socket物件
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # 設定連接資訊
+        server_address = ('localhost', 10000)
+        print(f"Connecting to {server_address}")
+        sock.connect(server_address)
+
+        # 封裝參數
+        # range [-100 ~ 100] tp [-20 ~20]
+        angle = float(distance/5)
+        params = [angle]
+        data = pickle.dumps(params)
+
+        try:
+            # 送出封裝後的資料
+            sock.sendall(data)
+            print("Sent data")
+
+        except KeyboardInterrupt:
+            print("Interrupted by user")
+
+        finally:
+            sock.close()
+            print("Socket closed") 
 
     #old
     def runCommand(self, runCommand):    
@@ -207,10 +235,14 @@ class TurningModule():
         
         else:
             print ("open serial port error")
-    def SetDistance(self, distance):
+    def SetDistance(self, distance_0_10000):
+        #range [0 ~ 10000] to [-100 ~ 100] 
+        distance = (distance_0_10000 - 5000)/50
+
         def to_hex(n):
             # 兩個位元組可以表示的範圍是 -32768 ~ 32767
             # 若輸入的數值超過此範圍，則會有誤差
+            n = int(n)
             if n < -32768 or n > 32767:
                 raise ValueError("輸入超出範圍。")
             # 對於負數，我們先將其轉換為相對應的二補數表示，然後轉換為十六進制
@@ -263,7 +295,6 @@ class TurningModule():
                 #print("write command1", command0)
                 time.sleep(0.0001*len(motorCommandCrc))
                 GPIO.output(uart_tx, GPIO.LOW)
-                '''
                 for i in range(20):
                     count = ser.inWaiting()
                     if count != 0:
@@ -276,7 +307,7 @@ class TurningModule():
                     ser.flushInput()
                     time.sleep(0.1)
                     i=i+1
-                '''
+                
                 
                 
             except Exception as e1:
@@ -284,110 +315,16 @@ class TurningModule():
         
         else:
             print ("open serial port error")
+
+        # self.SendData(distance)
+
     def Initialization():
-        ser = serial.Serial()
-        ser.port = "/dev/ttyAMA0"
-
-        #115200,N,8,1
-        ser.baudrate = 115200
-        ser.bytesize = serial.EIGHTBITS #number of bits per bytes
-        ser.parity = serial.PARITY_EVEN #set parity check
-        ser.stopbits = serial.STOPBITS_ONE #number of stop bits
+        TurningModule().SetDistance(0)
+        time.sleep(7.5)
+        TurningModule().SetDistance(10000)
+        time.sleep(7.5)
+        TurningModule().SetDistance(5000)
         
-        ser.timeout = 0.5          #non-block read 0.5s
-        ser.writeTimeout = 0.5     #timeout for write 0.5s
-        ser.xonxoff = False    #disable software flow control
-        ser.rtscts = False     #disable hardware (RTS/CTS) flow control
-        ser.dsrdtr = False     #disable hardware (DSR/DTR) flow control
-
-
-        uart_tx = 7
-        GPIO.setwarnings(False)
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(uart_tx, GPIO.OUT)
-
-
-        try: 
-            ser.open()
-        except Exception as ex:
-            print ("open serial port error " + str(ex))
-            exit()
-        
-        if ser.isOpen():
-            try:
-                ser.flushInput() #flush input buffer
-                ser.flushOutput() #flush output buffer
-
-
-                motorCommand_10000 = "01100058001020\
-                    00000001\
-                    00000014\
-                    00002710\
-                    000007D0\
-                    000001F4\
-                    000001F4\
-                    000001F4\
-                    00000001"
-
-                motorCommand_5000 = "01100058001020\
-                    00000001\
-                    00000014\
-                    00001388\
-                    000007D0\
-                    000001F4\
-                    000001F4\
-                    000001F4\
-                    00000001"
-
-                motorCommand_0 = "01100058001020\
-                    00000001\
-                    00000014\
-                    00000000\
-                    000007D0\
-                    000001F4\
-                    000001F4\
-                    000001F4\
-                    00000001"
-
-                
-                motorCommandCrc_10000 = bytearray.fromhex(TurningModule().crc16Add(motorCommand_10000))
-                motorCommandCrc_5000 = bytearray.fromhex(TurningModule().crc16Add(motorCommand_5000))
-                motorCommandCrc_0 = bytearray.fromhex(TurningModule().crc16Add(motorCommand_0))
-
-                
-
-                commandsToRun = [motorCommandCrc_0, motorCommandCrc_10000, motorCommandCrc_5000]
-                
-                for command in commandsToRun:                
-                    #write 8 byte data
-                    GPIO.output(uart_tx, GPIO.HIGH)
-                    ser.write(command)
-                    #print("write command1", command0)
-                    time.sleep(0.0001*len(command))
-                    GPIO.output(uart_tx, GPIO.LOW)
-                    for i in range(20):
-                        count = ser.inWaiting()
-                        if count != 0:
-                            print('count = ', count)
-                            recv = ser.read(count)
-                            print(recv)
-                            print('\n')
-                            break
-                            #ser.write(recv)
-                        ser.flushInput()
-                        time.sleep(0.1)
-                        i=i+1
-
-                    try:
-                        time.sleep(7.5)
-                    except NameError:
-                        print("Last element")
-                                
-            except Exception as e1:
-                print ("communicating error " + str(e1))
-        
-        else:
-            print ("open serial port error")
     def Break(position):
         ser = serial.Serial()
         ser.port = "/dev/ttyAMA0"
