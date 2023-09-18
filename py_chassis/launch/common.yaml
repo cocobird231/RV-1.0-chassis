@@ -1,15 +1,36 @@
-#config/common.yaml
-
+#ver=1.2
 ---
 topic_chassis:
-    nodeName : "chassis_publisher_node" #defined by ID
-    topicName : "chassis_motor_0" #defined by ID
+    nodeName : "chassis_topic" # Determined by ID
+    topicName : "chassis_topic" # Determined by ID
     publishInterval : 0.1
 
-node_prop:
-    nodeName : "" #defined by ID
-    namespace : "V0"
-
 internal_prop:
-    hostIP : "192.168.1.42" #Jim ID server location
-    ID : 13 #Determine chassis module function { axle : [11, 14], steering : [41, 44], battery : [21, 36] }
+    hostIP : "192.168.1.42" # Jim's ID server location
+
+# Settings for Params class under vehicle_interfaces/params.h
+generic_prop:
+    # Node name and namespace. The namespace will automatically adding prefix at node name, topic name, service name, etc..
+    namespace : "V0"
+    nodeName : "chassis" # Determined by ID
+
+    # Device ID, the ID will automatically formed the name of nodes and publisher topics. For instance, 
+    # the node name will be formed as "<nodeName>_<id>_node", and the publisher topic name will be formed as "<topic_name>_<id>". 
+    # Note: If the topic use to be subscriptions, then the topic name will not be formed.
+    id : 0 # Determine chassis module function { axle : [11, 14], steering : [41, 44], battery : [21, 36] }
+
+    # Device information service configuration
+    devInfoService : "" # Service name devinfo_0
+    devInterface : "eth0" # eth0
+
+    # QoS service configuration
+    qosService : "qos_0" # Service name qos_0
+    qosDirPath : "launch/qos"
+
+    # Safety service configuration
+    safetyService : "" # Service name safety_0
+
+    # Time sync service configuration
+    timesyncService : "timesync_0" # Service name timesync_0
+    timesyncPeriod_ms : 1000000.0
+    timesyncAccuracy_ms : 2.0 # Restrict the duration of sync process time
