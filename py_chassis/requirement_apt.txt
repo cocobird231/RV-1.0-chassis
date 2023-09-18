@@ -1,2 +1,2 @@
-python3-pigpio \
+python3-pigpio
 nano

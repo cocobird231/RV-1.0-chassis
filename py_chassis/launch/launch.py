@@ -13,7 +13,7 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package="py_chassis",
-            namespace=data['node_prop']['namespace'],
+            namespace=data['generic_prop']['namespace'],
             executable="pub",
             output="screen",
             emulate_tty=True,
