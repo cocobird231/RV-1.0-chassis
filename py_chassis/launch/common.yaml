@@ -21,7 +21,7 @@ generic_prop:
 
     # Device information service configuration
     devInfoService : "devinfo_0" # Service name devinfo_0
-    devInterface : "eth0" # eth0
+    devInterface : "wlan0" # eth0
     devMultiNode : False # False
 
     # QoS service configuration
